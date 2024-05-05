@@ -6,7 +6,6 @@ import Footer from './Footer';
 import LoginPage from './LoginPage';
 import BlogManagement from './BlogManagement';
 
-// Contenedor principal
 const AppContainer = styled.div`
   padding: 20px;
   min-height: 100vh;
@@ -17,14 +16,12 @@ const AppContainer = styled.div`
   overflow: auto;
 `;
 
-// Barra de navegación
 const NavBar = styled.nav`
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
 `;
 
-// Botón de navegación
 const NavButton = styled.button`
   padding: 10px;
   border: 1px solid #ccc;
@@ -37,21 +34,25 @@ const NavButton = styled.button`
 
 const App = () => {
   const [activePage, setActivePage] = useState('posts'); // Página por defecto
+  const [token, setToken] = useState(null);
 
-  // Función para cambiar entre páginas
   const navigateTo = (page) => {
     setActivePage(page);
   };
 
-  // Renderizado condicional
+  const handleSetToken = (newToken) => {
+    setToken(newToken);
+    navigateTo('admin');  // Cambia a la página de administración
+  };
+
   const renderContent = () => {
     switch (activePage) {
       case 'posts':
         return <Posts />;
       case 'login':
-        return <LoginPage />;
+        return <LoginPage setToken={handleSetToken} />;
       case 'admin':
-        return <BlogManagement />;
+        return token ? <BlogManagement /> : <LoginPage setToken={handleSetToken} />;
       default:
         return <Posts />;
     }
@@ -60,13 +61,11 @@ const App = () => {
   return (
     <AppContainer>
       <Header title="FLOWERSS BLOG" />
-      {/* Barra de Navegación */}
       <NavBar>
         <NavButton onClick={() => navigateTo('posts')}>Posts</NavButton>
         <NavButton onClick={() => navigateTo('login')}>Iniciar Sesión</NavButton>
         <NavButton onClick={() => navigateTo('admin')}>Administración</NavButton>
       </NavBar>
-      {/* Contenido */}
       {renderContent()}
       <Footer />
     </AppContainer>

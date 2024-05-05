@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-// Estilos para el contenedor del formulario y la lista de publicaciones
 const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -58,107 +57,80 @@ const Card = styled.div`
 
 const BlogManagement = () => {
   const [posts, setPosts] = useState([]);
-  const [title, setTitle] = useState('');
+  const [flower_name, setFlowerName] = useState('');
   const [color, setColor] = useState('');
   const [season, setSeason] = useState('');
-  const [editId, setEditId] = useState(null);
+  const [editFlowerName, setEditFlowerName] = useState(null);
 
-  // Función para manejar el cambio en el campo de título
-  const handleTitleChange = (e) => {
-    const value = e.target.value;
-    console.log('Título:', value);
-    setTitle(value);
-  };
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
-  // Función para manejar el cambio en el campo de color
-  const handleColorChange = (e) => {
-    const value = e.target.value;
-    console.log('Color:', value);
-    setColor(value);
-  };
-
-  // Función para manejar el cambio en el campo de temporada
-  const handleSeasonChange = (e) => {
-    const value = e.target.value;
-    console.log('Temporada:', value);
-    setSeason(value);
-  };
-
-  // Obtener todas las publicaciones
   const fetchPosts = async () => {
     const response = await fetch('http://localhost:3000/posts');
     const data = await response.json();
     setPosts(data);
   };
 
-  // Crear o actualizar una publicación
   const savePost = async () => {
-    const post = { flower_name: title, color, season };
-    console.log('Datos enviados:', post);
-    let response;
+    const post = { flower_name, color, season };
+    const url = editFlowerName
+      ? `http://localhost:3000/posts/by-flower/${encodeURIComponent(editFlowerName)}`
+      : 'http://localhost:3000/posts';
+    const method = editFlowerName ? 'PUT' : 'POST';
 
-    const url = editId ? `http://localhost:3000/posts/${editId}` : 'http://localhost:3000/posts';
-    const method = editId ? 'PUT' : 'POST';
-
-    response = await fetch(url, {
+    const response = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(post)
     });
 
     if (response.ok) {
-      fetchPosts(); // Refrescar la lista de publicaciones
-      setTitle('');
+      fetchPosts();
+      setFlowerName('');
       setColor('');
       setSeason('');
-      setEditId(null);
+      setEditFlowerName(null);
     } else {
       console.error('Error al guardar la publicación:', await response.text());
     }
   };
 
-  // Eliminar una publicación
-  const deletePost = async (id) => {
-    const response = await fetch(`http://localhost:3000/posts/${id}`, {
+  const deletePost = async (flower_name) => {
+    const response = await fetch(`http://localhost:3000/posts/by-flower/${encodeURIComponent(flower_name)}`, {
       method: 'DELETE'
     });
 
     if (response.ok) fetchPosts();
   };
 
-  // Cargar los datos de una publicación para editarla
   const editPost = (post) => {
-    setTitle(post.flower_name);
+    setFlowerName(post.flower_name);
     setColor(post.color);
     setSeason(post.season);
-    setEditId(post.id);
+    setEditFlowerName(post.flower_name);
   };
-
-  useEffect(() => {
-    fetchPosts(); // Cargar las publicaciones al montar el componente
-  }, []);
 
   return (
     <div>
       <Title>Administración del Blog</Title>
       <FormContainer>
         <Form onSubmit={(e) => { e.preventDefault(); savePost(); }}>
-          <Input type="text" value={title} onChange={handleTitleChange} placeholder="Nombre de la Flor" required />
-          <Input type="text" value={color} onChange={handleColorChange} placeholder="Color" required />
-          <Input type="text" value={season} onChange={handleSeasonChange} placeholder="Temporada" required />
-          <Button type="submit">{editId ? 'Actualizar Publicación' : 'Agregar Publicación'}</Button>
+          <Input type="text" value={flower_name} onChange={(e) => setFlowerName(e.target.value)} placeholder="Nombre de la Flor" required />
+          <Input type="text" value={color} onChange={(e) => setColor(e.target.value)} placeholder="Color" required />
+          <Input type="text" value={season} onChange={(e) => setSeason(e.target.value)} placeholder="Temporada" required />
+          <Button type="submit">{editFlowerName ? 'Actualizar Publicación' : 'Agregar Publicación'}</Button>
         </Form>
       </FormContainer>
 
-      {/* Lista de Publicaciones */}
       <PostsList>
         {posts.map(post => (
-          <Card key={post.id}>
+          <Card key={post.flower_name}>
             <h3>{post.flower_name}</h3>
             <p><strong>Color:</strong> {post.color}</p>
             <p><strong>Temporada:</strong> {post.season}</p>
             <Button onClick={() => editPost(post)}>Editar</Button>
-            <Button style={{ backgroundColor: '#dc3545' }} onClick={() => deletePost(post.id)}>Eliminar</Button>
+            <Button style={{ backgroundColor: '#dc3545' }} onClick={() => deletePost(post.flower_name)}>Eliminar</Button>
           </Card>
         ))}
       </PostsList>
@@ -167,4 +139,3 @@ const BlogManagement = () => {
 };
 
 export default BlogManagement;
-
