@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client'; // Importa correctamente createRoot
-import App from './App'; // Asegúrate que la ruta a App es correcta
+import App from './App'; 
 
 // Busca el elemento raíz en tu HTML
 const container = document.getElementById('root');

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import ImageMap from './Images/ImageMap';  // Asegúrate de que la ruta es correcta.
+import ImageMap from './Images/ImageMap';  
 
 const Card = styled.div`
   margin: 10px;
@@ -68,7 +68,7 @@ const Rating = ({ rating, setRating }) => {
 
 const PostCard = ({ post }) => {
   const [rating, setRating] = useState(0);
-  const ImagePath = ImageMap[post.flower_name]; // Asegúrate de que el mapeo de imágenes corresponde correctamente.
+  const ImagePath = ImageMap[post.flower_name]; 
 
   return (
     <Card>
