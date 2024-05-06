@@ -1,3 +1,4 @@
+// App.jsx
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Header from './Header';
@@ -5,6 +6,7 @@ import Posts from './Posts';
 import Footer from './Footer';
 import LoginPage from './LoginPage';
 import BlogManagement from './BlogManagement';
+import SignupPage from './SignupPage';
 
 const AppContainer = styled.div`
   padding: 20px;
@@ -33,7 +35,7 @@ const NavButton = styled.button`
 `;
 
 const App = () => {
-  const [activePage, setActivePage] = useState('posts'); // Página por defecto
+  const [activePage, setActivePage] = useState('posts');
   const [token, setToken] = useState(null);
 
   const navigateTo = (page) => {
@@ -42,7 +44,11 @@ const App = () => {
 
   const handleSetToken = (newToken) => {
     setToken(newToken);
-    navigateTo('admin');  // Cambia a la página de administración
+    navigateTo('admin'); // Cambia a la página de administración
+  };
+
+  const handleSignupSuccess = () => {
+    navigateTo('login'); // Cambia a la página de inicio de sesión tras registrarse
   };
 
   const renderContent = () => {
@@ -51,6 +57,8 @@ const App = () => {
         return <Posts />;
       case 'login':
         return <LoginPage setToken={handleSetToken} />;
+      case 'signup':
+        return <SignupPage onSignupSuccess={handleSignupSuccess} />;
       case 'admin':
         return token ? <BlogManagement /> : <LoginPage setToken={handleSetToken} />;
       default:
@@ -64,6 +72,7 @@ const App = () => {
       <NavBar>
         <NavButton onClick={() => navigateTo('posts')}>Posts</NavButton>
         <NavButton onClick={() => navigateTo('login')}>Iniciar Sesión</NavButton>
+        <NavButton onClick={() => navigateTo('signup')}>Crear Usuario</NavButton>
         <NavButton onClick={() => navigateTo('admin')}>Administración</NavButton>
       </NavBar>
       {renderContent()}
