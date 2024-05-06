@@ -19,7 +19,7 @@ const Input = ({ label, type, value, onChange, placeholder }) => (
     <StyledInput
       type={type}
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={onChange} // Pasa el evento directamente
       placeholder={placeholder}
     />
   </div>

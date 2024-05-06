@@ -1,12 +1,10 @@
-// LoginPage.jsx
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Button from './Button';
-import Input from './Input'; // Importar el componente personalizado `Input`
-import logo from './Images/logo.jpeg'; // Asegúrate de que esta sea la ruta correcta
+import Input from './Input';
+import logo from './Images/logo.jpeg';
 
-// Contenedor principal de la tarjeta
 const Card = styled.div`
   display: flex;
   flex-direction: column;
@@ -14,25 +12,17 @@ const Card = styled.div`
   padding: 30px;
   max-width: 400px;
   margin: 0 auto 50px;
-  border: 1px sólido #ccc;
+  border: 1px solid #ccc;
   border-radius: 10px;
   background-color: #fff;
 `;
 
-// Contenedor para etiquetas y campos de entrada
 const FieldContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   margin-bottom: 15px;
-`;
-
-// Estilo para las etiquetas
-const Label = styled.label`
-  margin-bottom: 5px;
-  text-align: center;
-  font-weight: bold;
 `;
 
 const PasswordContainer = styled.div`
@@ -47,9 +37,9 @@ const ToggleVisibilityButton = styled.button`
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 0; // Eliminar cualquier padding adicional
+  padding: 0;
   margin-left: 5px;
-  display: inline-flex; // Mostrar el ícono en línea sin cuadro
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 `;
@@ -60,26 +50,15 @@ const LoginPage = ({ setToken }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Manejar el cambio en el campo de usuario
-  const handleUsernameChange = (value) => {
-    setUsername(value);
-  };
+  // Actualiza con el evento directamente
+  const handleUsernameChange = (e) => setUsername(e.target.value);
+  const handlePasswordChange = (e) => setPassword(e.target.value);
+  const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
 
-  // Manejar el cambio en el campo de contraseña
-  const handlePasswordChange = (value) => {
-    setPassword(value);
-  };
-
-  // Alternar visibilidad de la contraseña
-  const togglePasswordVisibility = () => {
-    setPasswordVisible(!passwordVisible);
-  };
-
-  // Manejar el envío del formulario de inicio de sesión
   const handleSubmit = async () => {
     const body = {
-      userName: username,
-      passwordHash: password // Ajusta según tu lógica de autenticación
+      userName: username, // Asegúrate de que el nombre coincida con tu base de datos
+      passwordHash: password
     };
     const fetchOptions = {
       method: 'POST',
@@ -88,46 +67,41 @@ const LoginPage = ({ setToken }) => {
         'Content-Type': 'application/json'
       }
     };
-    const response = await fetch('http://localhost:3000/auth/login', fetchOptions);
-    const data = await response.json();
-    if (response.ok) {
-      const token = data.token || 'simulated-token';
-      setToken(token);
-    } else {
-      setErrorMessage('Credenciales inválidas.');
+    try {
+      const response = await fetch('http://localhost:3000/auth/login', fetchOptions);
+      if (response.ok) {
+        const data = await response.json(); // Asegúrate de que sea JSON válido
+        const token = data.token || '';
+        setToken(token); // Pasa el token al componente principal
+      } else {
+        const errorResponse = await response.json();
+        setErrorMessage(errorResponse.error || 'Credenciales inválidas.');
+      }
+    } catch (error) {
+      setErrorMessage('Error de conexión o respuesta no válida.');
     }
   };
 
   return (
     <Card>
-      {/* Mostrar el logo */}
-      <img
-        src={logo}
-        alt="Logo del Blog"
-        style={{ marginBottom: "20px", maxWidth: "100%", height: "auto" }}
-      />
-      {/* Título principal */}
-      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>
-        ¡Bienvenido a Flowerss Blog!
-      </h1>
-      {/* Campo de nombre de usuario */}
+      <img src={logo} alt="Logo del Blog" style={{ marginBottom: "20px", maxWidth: "100%", height: "auto" }} />
+      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>¡Bienvenido a Flowerss Blog!</h1>
       <FieldContainer>
         <Input
           label="Usuario"
           type="text"
           value={username}
-          onChange={handleUsernameChange} // Actualizar el estado con el evento `onChange`
+          onChange={handleUsernameChange} // Actualiza directamente desde el evento
           placeholder="Tu nombre de usuario"
         />
       </FieldContainer>
-      {/* Campo de contraseña con alternador de visibilidad */}
       <FieldContainer>
         <PasswordContainer>
           <Input
             label="Contraseña"
             type={passwordVisible ? "text" : "password"}
             value={password}
-            onChange={handlePasswordChange} // Actualizar el estado con el evento `onChange`
+            onChange={handlePasswordChange} // Actualiza directamente desde el evento
             placeholder="Tu contraseña"
           />
           <ToggleVisibilityButton onClick={togglePasswordVisibility}>
@@ -135,13 +109,9 @@ const LoginPage = ({ setToken }) => {
           </ToggleVisibilityButton>
         </PasswordContainer>
       </FieldContainer>
-      {/* Botón para iniciar sesión */}
-      <Button text="Iniciar sesión" onClick={handleSubmit} style={{ marginBottom: "20px" }} />
-      {/* Mostrar un mensaje de error si hay un problema de autenticación */}
+      <Button text="Iniciar sesión" onClick={handleSubmit} />
       {errorMessage !== '' && (
-        <div style={{ color: "red", marginTop: "10px" }}>
-          {errorMessage}
-        </div>
+        <div style={{ color: "red", marginTop: "10px" }}>{errorMessage}</div>
       )}
     </Card>
   );
