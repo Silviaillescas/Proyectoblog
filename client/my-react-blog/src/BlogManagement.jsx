@@ -60,7 +60,7 @@ const BlogManagement = () => {
   const [flower_name, setFlowerName] = useState('');
   const [color, setColor] = useState('');
   const [season, setSeason] = useState('');
-  const [editFlowerName, setEditFlowerName] = useState(null);
+  const [editId, setEditId] = useState(null);
 
   useEffect(() => {
     fetchPosts();
@@ -74,30 +74,30 @@ const BlogManagement = () => {
 
   const savePost = async () => {
     const post = { flower_name, color, season };
-    const url = editFlowerName
-      ? `http://localhost:3000/posts/by-flower/${encodeURIComponent(editFlowerName)}`
-      : 'http://localhost:3000/posts';
-    const method = editFlowerName ? 'PUT' : 'POST';
+    const url = editId
+        ? `http://localhost:3000/posts/${encodeURIComponent(editId)}`
+        : 'http://localhost:3000/posts';
+    const method = editId ? 'PUT' : 'POST';
 
     const response = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(post)
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(post),
     });
 
     if (response.ok) {
-      fetchPosts();
-      setFlowerName('');
-      setColor('');
-      setSeason('');
-      setEditFlowerName(null);
+        fetchPosts();
+        setFlowerName('');
+        setColor('');
+        setSeason('');
+        setEditId(null);
     } else {
-      console.error('Error al guardar la publicación:', await response.text());
+        console.error('Error al guardar la publicación:', await response.text());
     }
   };
 
-  const deletePost = async (flower_name) => {
-    const response = await fetch(`http://localhost:3000/posts/by-flower/${encodeURIComponent(flower_name)}`, {
+  const deletePost = async (id) => {
+    const response = await fetch(`http://localhost:3000/posts/${encodeURIComponent(id)}`, {
       method: 'DELETE'
     });
 
@@ -105,10 +105,10 @@ const BlogManagement = () => {
   };
 
   const editPost = (post) => {
+    setEditId(post.id); // Asigna el id correcto
     setFlowerName(post.flower_name);
     setColor(post.color);
     setSeason(post.season);
-    setEditFlowerName(post.flower_name);
   };
 
   return (
@@ -119,18 +119,18 @@ const BlogManagement = () => {
           <Input type="text" value={flower_name} onChange={(e) => setFlowerName(e.target.value)} placeholder="Nombre de la Flor" required />
           <Input type="text" value={color} onChange={(e) => setColor(e.target.value)} placeholder="Color" required />
           <Input type="text" value={season} onChange={(e) => setSeason(e.target.value)} placeholder="Temporada" required />
-          <Button type="submit">{editFlowerName ? 'Actualizar Publicación' : 'Agregar Publicación'}</Button>
+          <Button type="submit">{editId ? 'Actualizar Publicación' : 'Agregar Publicación'}</Button>
         </Form>
       </FormContainer>
 
       <PostsList>
         {posts.map(post => (
-          <Card key={post.flower_name}>
+          <Card key={post.id}>
             <h3>{post.flower_name}</h3>
             <p><strong>Color:</strong> {post.color}</p>
             <p><strong>Temporada:</strong> {post.season}</p>
             <Button onClick={() => editPost(post)}>Editar</Button>
-            <Button style={{ backgroundColor: '#dc3545' }} onClick={() => deletePost(post.flower_name)}>Eliminar</Button>
+            <Button style={{ backgroundColor: '#dc3545' }} onClick={() => deletePost(post.id)}>Eliminar</Button>
           </Card>
         ))}
       </PostsList>
