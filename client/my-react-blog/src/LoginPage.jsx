@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import Input from './Input';
 import Button from './Button';
-import logo from './Images/logo.jpeg'; 
+import Input from './Input'; // Importar el componente personalizado `Input`
+import logo from './Images/logo.jpeg'; // Asegúrate de que esta sea la ruta correcta
 
 // Contenedor principal de la tarjeta
 const Card = styled.div`
@@ -14,12 +14,12 @@ const Card = styled.div`
   padding: 30px;
   max-width: 400px;
   margin: 0 auto 50px;
-  border: 1px solid #ccc;
+  border: 1px sólido #ccc;
   border-radius: 10px;
   background-color: #fff;
 `;
 
-// Contenedor para las etiquetas y campos de entrada
+// Contenedor para etiquetas y campos de entrada
 const FieldContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -28,26 +28,13 @@ const FieldContainer = styled.div`
   margin-bottom: 15px;
 `;
 
-// Estilos para las etiquetas
+// Estilo para las etiquetas
 const Label = styled.label`
   margin-bottom: 5px;
   text-align: center;
   font-weight: bold;
 `;
 
-// Estilos para los mensajes de error
-const ErrorMessage = styled.div`
-  color: red;
-  margin-top: 10px;
-`;
-
-// Título principal de la página
-const Title = styled.h1`
-  text-align: center;
-  margin-bottom: 20px;
-`;
-
-// Contenedor para el campo de contraseña y su visibilidad
 const PasswordContainer = styled.div`
   display: flex;
   align-items: center;
@@ -56,35 +43,44 @@ const PasswordContainer = styled.div`
   margin-bottom: 20px;
 `;
 
-// Estilos para el campo de entrada de la contraseña
-const PasswordInput = styled(Input)`
-  flex-grow: 1;
-  text-align: center; // Centrar el texto dentro del campo
-`;
-
-// Estilos para el botón de visibilidad de la contraseña
 const ToggleVisibilityButton = styled.button`
   background: transparent;
   border: none;
   cursor: pointer;
+  padding: 0; // Eliminar cualquier padding adicional
   margin-left: 5px;
+  display: inline-flex; // Mostrar el ícono en línea sin cuadro
+  align-items: center;
+  justify-content: center;
 `;
 
 const LoginPage = ({ setToken }) => {
-  // Definir los estados para el nombre de usuario, la contraseña y los mensajes de error
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Función para manejar el envío del formulario
+  // Manejar el cambio en el campo de usuario
+  const handleUsernameChange = (value) => {
+    setUsername(value);
+  };
+
+  // Manejar el cambio en el campo de contraseña
+  const handlePasswordChange = (value) => {
+    setPassword(value);
+  };
+
+  // Alternar visibilidad de la contraseña
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  };
+
+  // Manejar el envío del formulario de inicio de sesión
   const handleSubmit = async () => {
-    // Cuerpo del POST para la solicitud de autenticación
     const body = {
       userName: username,
-      passwordHash: password 
+      passwordHash: password // Ajusta según tu lógica de autenticación
     };
-    // Opciones para la solicitud POST
     const fetchOptions = {
       method: 'POST',
       body: JSON.stringify(body),
@@ -92,10 +88,8 @@ const LoginPage = ({ setToken }) => {
         'Content-Type': 'application/json'
       }
     };
-    // Realiza la solicitud de inicio de sesión
     const response = await fetch('http://localhost:3000/auth/login', fetchOptions);
     const data = await response.json();
-    // Comprueba si la solicitud fue exitosa o hubo un error
     if (response.ok) {
       const token = data.token || 'simulated-token';
       setToken(token);
@@ -104,55 +98,50 @@ const LoginPage = ({ setToken }) => {
     }
   };
 
-  // Alternar visibilidad de la contraseña
-  const togglePasswordVisibility = () => {
-    setPasswordVisible(!passwordVisible);
-  };
-
   return (
     <Card>
-      {/* Mostrar la imagen del logo */}
+      {/* Mostrar el logo */}
       <img
         src={logo}
         alt="Logo del Blog"
         style={{ marginBottom: "20px", maxWidth: "100%", height: "auto" }}
       />
-      {/* Título de la página */}
-      <Title>¡Bienvenido a Flowerss Blog!</Title>
+      {/* Título principal */}
+      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>
+        ¡Bienvenido a Flowerss Blog!
+      </h1>
       {/* Campo de nombre de usuario */}
       <FieldContainer>
-        <Label htmlFor="username">Usuario</Label>
         <Input
-          id="username"
+          label="Usuario"
           type="text"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={handleUsernameChange} // Actualizar el estado con el evento `onChange`
           placeholder="Tu nombre de usuario"
-          style={{ textAlign: "center" }} // Centrar el texto dentro del campo
         />
       </FieldContainer>
       {/* Campo de contraseña con alternador de visibilidad */}
       <FieldContainer>
-        <Label htmlFor="password">Contraseña</Label>
         <PasswordContainer>
-          <PasswordInput
-            id="password"
+          <Input
+            label="Contraseña"
             type={passwordVisible ? "text" : "password"}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handlePasswordChange} // Actualizar el estado con el evento `onChange`
             placeholder="Tu contraseña"
-            style={{ textAlign: "center" }} // Centrar el texto dentro del campo
           />
           <ToggleVisibilityButton onClick={togglePasswordVisibility}>
             {passwordVisible ? "👁️" : "🙈"}
           </ToggleVisibilityButton>
         </PasswordContainer>
       </FieldContainer>
-      {/* Botón de iniciar sesión */}
+      {/* Botón para iniciar sesión */}
       <Button text="Iniciar sesión" onClick={handleSubmit} style={{ marginBottom: "20px" }} />
-      {/* Mensaje de error */}
+      {/* Mostrar un mensaje de error si hay un problema de autenticación */}
       {errorMessage !== '' && (
-        <ErrorMessage onClick={() => setErrorMessage('')}>{errorMessage}</ErrorMessage>
+        <div style={{ color: "red", marginTop: "10px" }}>
+          {errorMessage}
+        </div>
       )}
     </Card>
   );
@@ -163,5 +152,3 @@ LoginPage.propTypes = {
 };
 
 export default LoginPage;
-
-

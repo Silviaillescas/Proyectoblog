@@ -1,141 +1,166 @@
-import React, { useEffect, useState } from 'react';
+// LoginPage.jsx
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import Button from './Button';
+import logo from './Images/logo.jpeg'; // Asegúrate de que esta sea la ruta correcta
 
-const FormContainer = styled.div`
+// Contenedor principal de la tarjeta
+const Card = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 20px;
-`;
-
-const Form = styled.form`
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-`;
-
-const Input = styled.input`
-  padding: 8px;
+  padding: 30px;
+  max-width: 400px;
+  margin: 0 auto 50px;
   border: 1px solid #ccc;
-  border-radius: 5px;
-`;
-
-const Button = styled.button`
-  padding: 8px 15px;
-  border: none;
-  background-color: #28a745;
-  color: white;
-  cursor: pointer;
-  border-radius: 5px;
-
-  &:hover {
-    background-color: #218838;
-  }
-`;
-
-const Title = styled.h1`
-  text-align: center;
-  color: #333;
-`;
-
-const PostsList = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 20px;
-`;
-
-const Card = styled.div`
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 16px;
-  margin: 10px;
-  width: 300px;
-  text-align: center;
+  border-radius: 10px;
   background-color: #fff;
 `;
 
-const BlogManagement = () => {
-  const [posts, setPosts] = useState([]);
-  const [flower_name, setFlowerName] = useState('');
-  const [color, setColor] = useState('');
-  const [season, setSeason] = useState('');
-  const [editFlowerName, setEditFlowerName] = useState(null);
+// Contenedor para etiquetas y campos de entrada
+const FieldContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 15px;
+`;
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
+// Estilo para las etiquetas
+const Label = styled.label`
+  margin-bottom: 5px;
+  text-align: center;
+  font-weight: bold;
+`;
 
-  const fetchPosts = async () => {
-    const response = await fetch('http://localhost:3000/posts');
-    const data = await response.json();
-    setPosts(data);
+// Mensaje de error
+const ErrorMessage = styled.div`
+  color: red;
+  margin-top: 10px;
+`;
+
+// Título principal
+const Title = styled.h1`
+  text-align: center;
+  margin-bottom: 20px;
+`;
+
+// Campo de entrada
+const Input = styled.input`
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  text-align: center; // Centrar el texto dentro del campo
+`;
+
+// Contenedor para el campo de contraseña y su visibilidad
+const PasswordContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 20px;
+`;
+
+// Botón para alternar la visibilidad de la contraseña
+const ToggleVisibilityButton = styled.button`
+  background: transparente;
+  borde: ninguno;
+  cursor: pointer;
+  margen-izquierda: 5px;
+`;
+
+const LoginPage = ({ setToken }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // Función para manejar el evento de cambio en el campo de usuario
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value);
   };
 
-  const savePost = async () => {
-    const post = { flower_name, color, season };
-    const url = editFlowerName
-      ? `http://localhost:3000/posts/by-flower/${encodeURIComponent(editFlowerName)}`
-      : 'http://localhost:3000/posts';
-    const method = editFlowerName ? 'PUT' : 'POST';
+  // Función para manejar el evento de cambio en el campo de contraseña
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+  };
 
-    const response = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(post)
-    });
-
+  const handleSubmit = async () => {
+    const body = {
+      userName: username,
+      passwordHash: password // Ajusta según tu lógica de autenticación
+    };
+    const fetchOptions = {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+    const response = await fetch('http://localhost:3000/auth/login', fetchOptions);
+    const data = await response.json();
     if (response.ok) {
-      fetchPosts();
-      setFlowerName('');
-      setColor('');
-      setSeason('');
-      setEditFlowerName(null);
+      const token = data.token || 'simulated-token';
+      setToken(token);
     } else {
-      console.error('Error al guardar la publicación:', await response.text());
+      setErrorMessage('Credenciales inválidas.');
     }
   };
 
-  const deletePost = async (flower_name) => {
-    const response = await fetch(`http://localhost:3000/posts/by-flower/${encodeURIComponent(flower_name)}`, {
-      method: 'DELETE'
-    });
-
-    if (response.ok) fetchPosts();
-  };
-
-  const editPost = (post) => {
-    setFlowerName(post.flower_name);
-    setColor(post.color);
-    setSeason(post.season);
-    setEditFlowerName(post.flower_name);
+  // Alternar visibilidad de la contraseña
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
   };
 
   return (
-    <div>
-      <Title>Administración del Blog</Title>
-      <FormContainer>
-        <Form onSubmit={(e) => { e.preventDefault(); savePost(); }}>
-          <Input type="text" value={flower_name} onChange={(e) => setFlowerName(e.target.value)} placeholder="Nombre de la Flor" required />
-          <Input type="text" value={color} onChange={(e) => setColor(e.target.value)} placeholder="Color" required />
-          <Input type="text" value={season} onChange={(e) => setSeason(e.target.value)} placeholder="Temporada" required />
-          <Button type="submit">{editFlowerName ? 'Actualizar Publicación' : 'Agregar Publicación'}</Button>
-        </Form>
-      </FormContainer>
-
-      <PostsList>
-        {posts.map(post => (
-          <Card key={post.flower_name}>
-            <h3>{post.flower_name}</h3>
-            <p><strong>Color:</strong> {post.color}</p>
-            <p><strong>Temporada:</strong> {post.season}</p>
-            <Button onClick={() => editPost(post)}>Editar</Button>
-            <Button style={{ backgroundColor: '#dc3545' }} onClick={() => deletePost(post.flower_name)}>Eliminar</Button>
-          </Card>
-        ))}
-      </PostsList>
-    </div>
+    <Card>
+      <img
+        src={logo}
+        alt="Logo del Blog"
+        style={{ marginBottom: "20px", maxWidth: "100%", height: "auto" }}
+      />
+      <Title>¡Bienvenido a Flowerss Blog!</Title>
+      {/* Campo de nombre de usuario */}
+      <FieldContainer>
+        <Label htmlFor="username">Usuario</Label>
+        <Input
+          id="username"
+          type="text"
+          value={username}
+          onChange={handleUsernameChange} // Manejar evento de cambio para usuario
+          placeholder="Tu nombre de usuario"
+        />
+      </FieldContainer>
+      {/* Campo de contraseña con alternador de visibilidad */}
+      <FieldContainer>
+        <Label htmlFor="password">Contraseña</Label>
+        <PasswordContainer>
+          <Input
+            id="password"
+            type={passwordVisible ? "text" : "password"}
+            value={password}
+            onChange={handlePasswordChange} // Manejar evento de cambio para contraseña
+            placeholder="Tu contraseña"
+          />
+          <ToggleVisibilityButton onClick={togglePasswordVisibility}>
+            {passwordVisible ? "👁️" : "🙈"}
+          </ToggleVisibilityButton>
+        </PasswordContainer>
+      </FieldContainer>
+      <Button text="Iniciar sesión" onClick={handleSubmit} style={{ marginBottom: "20px" }} />
+      {errorMessage !== '' && (
+        <ErrorMessage onClick={() => setErrorMessage('')}>{errorMessage}</ErrorMessage>
+      )}
+    </Card>
   );
 };
 
-export default BlogManagement;
+LoginPage.propTypes = {
+  setToken: PropTypes.func.isRequired
+};
+
+export default LoginPage;
