@@ -60,6 +60,7 @@ const BlogManagement = () => {
   const [flower_name, setFlowerName] = useState('');
   const [color, setColor] = useState('');
   const [season, setSeason] = useState('');
+  const [image_url, setImageUrl] = useState(''); // Nuevo campo para la imagen
   const [editId, setEditId] = useState(null);
 
   useEffect(() => {
@@ -73,7 +74,7 @@ const BlogManagement = () => {
   };
 
   const savePost = async () => {
-    const post = { flower_name, color, season };
+    const post = { flower_name, color, season, image_url };
     const url = editId
         ? `http://localhost:3000/posts/${encodeURIComponent(editId)}`
         : 'http://localhost:3000/posts';
@@ -90,6 +91,7 @@ const BlogManagement = () => {
         setFlowerName('');
         setColor('');
         setSeason('');
+        setImageUrl(''); // Reinicia el campo de la imagen
         setEditId(null);
     } else {
         console.error('Error al guardar la publicación:', await response.text());
@@ -105,10 +107,11 @@ const BlogManagement = () => {
   };
 
   const editPost = (post) => {
-    setEditId(post.id); // Asigna el id correcto
+    setEditId(post.id);
     setFlowerName(post.flower_name);
     setColor(post.color);
     setSeason(post.season);
+    setImageUrl(post.image_url || ''); // Inicializa `image_url` con una cadena vacía si es `undefined`
   };
 
   return (
@@ -119,6 +122,7 @@ const BlogManagement = () => {
           <Input type="text" value={flower_name} onChange={(e) => setFlowerName(e.target.value)} placeholder="Nombre de la Flor" required />
           <Input type="text" value={color} onChange={(e) => setColor(e.target.value)} placeholder="Color" required />
           <Input type="text" value={season} onChange={(e) => setSeason(e.target.value)} placeholder="Temporada" required />
+          <Input type="text" value={image_url} onChange={(e) => setImageUrl(e.target.value)} placeholder="URL de la Imagen" />
           <Button type="submit">{editId ? 'Actualizar Publicación' : 'Agregar Publicación'}</Button>
         </Form>
       </FormContainer>

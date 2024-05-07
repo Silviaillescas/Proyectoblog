@@ -1,8 +1,7 @@
 // PostCard.jsx
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import ImageMap from './Images/ImageMap';  
+import ImageMap from './Images/ImageMap'; 
 
 const Card = styled.div`
   margin: 10px;
@@ -42,7 +41,7 @@ const RatingContainer = styled.div`
 
 const Star = styled.span`
   cursor: pointer;
-  color: ${props => props.selected ? 'gold' : 'gray'};
+  color: ${props => (props.selected ? 'gold' : 'gray')};
   &:hover,
   &.selected {
     transform: scale(1.3);
@@ -50,29 +49,29 @@ const Star = styled.span`
   }
 `;
 
-const Rating = ({ rating, setRating }) => {
-  return (
-    <RatingContainer>
-      {Array.from({ length: 5 }, (_, index) => (
-        <Star
-          key={index}
-          selected={rating > index}
-          onClick={() => setRating(index + 1)}
-        >
-          ★
-        </Star>
-      ))}
-    </RatingContainer>
-  );
-};
+const Rating = ({ rating, setRating }) => (
+  <RatingContainer>
+    {Array.from({ length: 5 }, (_, index) => (
+      <Star
+        key={index}
+        selected={rating > index}
+        onClick={() => setRating(index + 1)}
+      >
+        ★
+      </Star>
+    ))}
+  </RatingContainer>
+);
 
 const PostCard = ({ post }) => {
   const [rating, setRating] = useState(0);
-  const ImagePath = ImageMap[post.flower_name]; 
+
+  // Verificar si `image_url` está disponible, de lo contrario usar `ImageMap`
+  const imageUrl = post.image_url ? post.image_url : ImageMap[post.flower_name];
 
   return (
     <Card>
-      <CardImage src={ImagePath} alt={post.flower_name} />
+      <CardImage src={imageUrl} alt={post.flower_name} />
       <CardTitle>{post.flower_name}</CardTitle>
       <CardBody>Color: {post.color}</CardBody>
       <CardBody>Season: {post.season}</CardBody>
