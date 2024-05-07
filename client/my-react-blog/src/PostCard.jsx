@@ -1,7 +1,6 @@
 // PostCard.jsx
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import ImageMap from './Images/ImageMap'; 
 
 const Card = styled.div`
   margin: 10px;

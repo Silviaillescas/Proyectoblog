@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+// Estilos
 const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -55,65 +56,95 @@ const Card = styled.div`
   background-color: #fff;
 `;
 
+// Componente principal de administración de blogs
 const BlogManagement = () => {
+  // Estados para los campos del formulario
   const [posts, setPosts] = useState([]);
   const [flower_name, setFlowerName] = useState('');
   const [color, setColor] = useState('');
   const [season, setSeason] = useState('');
-  const [image_url, setImageUrl] = useState(''); // Nuevo campo para la imagen
+  const [image_url, setImageUrl] = useState('');
   const [editId, setEditId] = useState(null);
 
+  // Carga las publicaciones al montar el componente
   useEffect(() => {
     fetchPosts();
   }, []);
 
+  // Obtiene las publicaciones desde la API
   const fetchPosts = async () => {
-    const response = await fetch('http://localhost:3000/posts');
-    const data = await response.json();
-    setPosts(data);
-  };
-
-  const savePost = async () => {
-    const post = { flower_name, color, season, image_url };
-    const url = editId
-        ? `http://localhost:3000/posts/${encodeURIComponent(editId)}`
-        : 'http://localhost:3000/posts';
-    const method = editId ? 'PUT' : 'POST';
-
-    const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(post),
-    });
-
-    if (response.ok) {
-        fetchPosts();
-        setFlowerName('');
-        setColor('');
-        setSeason('');
-        setImageUrl(''); // Reinicia el campo de la imagen
-        setEditId(null);
-    } else {
-        console.error('Error al guardar la publicación:', await response.text());
+    try {
+      const response = await fetch('https://api.tiburoncin.lat/22376/posts');
+      const data = await response.json();
+      setPosts(data);
+    } catch (error) {
+      console.error('Error al obtener publicaciones:', error);
     }
   };
 
-  const deletePost = async (id) => {
-    const response = await fetch(`http://localhost:3000/posts/${encodeURIComponent(id)}`, {
-      method: 'DELETE'
-    });
+  // Guarda o actualiza una publicación en función de si editId está presente
+  const savePost = async () => {
+    // Verifica que los campos requeridos estén completos.
+    if (!flower_name || !color || !season) {
+      console.error('Faltan campos requeridos.');
+      return;
+    }
 
-    if (response.ok) fetchPosts();
+    const post = { flower_name, color, season, image_url };
+    console.log('Datos enviados:', JSON.stringify(post));
+
+    const url = editId
+      ? `https://api.tiburoncin.lat/22376/posts/${encodeURIComponent(editId)}`
+      : 'https://api.tiburoncin.lat/22376/posts';
+    const method = editId ? 'PUT' : 'POST';
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(post),
+      });
+
+      if (response.ok) {
+        fetchPosts();
+        // Restablece todos los campos a valores vacíos
+        setFlowerName('');
+        setColor('');
+        setSeason('');
+        setImageUrl('');
+        setEditId(null);
+      } else {
+        const errorText = await response.text();
+        console.error('Error al guardar la publicación:', errorText);
+      }
+    } catch (error) {
+      console.error('Error al enviar la solicitud:', error);
+    }
   };
 
+  // Elimina una publicación mediante su ID
+  const deletePost = async (id) => {
+    try {
+      const response = await fetch(`https://api.tiburoncin.lat/22376/posts/${encodeURIComponent(id)}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) fetchPosts();
+    } catch (error) {
+      console.error('Error al eliminar la publicación:', error);
+    }
+  };
+
+  // Carga los datos de una publicación en el formulario para su edición
   const editPost = (post) => {
     setEditId(post.id);
     setFlowerName(post.flower_name);
     setColor(post.color);
     setSeason(post.season);
-    setImageUrl(post.image_url || ''); // Inicializa `image_url` con una cadena vacía si es `undefined`
+    setImageUrl(post.image_url || '');
   };
 
+  // Renderiza el formulario y las publicaciones
   return (
     <div>
       <Title>Administración del Blog</Title>
@@ -121,7 +152,7 @@ const BlogManagement = () => {
         <Form onSubmit={(e) => { e.preventDefault(); savePost(); }}>
           <Input type="text" value={flower_name} onChange={(e) => setFlowerName(e.target.value)} placeholder="Nombre de la Flor" required />
           <Input type="text" value={color} onChange={(e) => setColor(e.target.value)} placeholder="Color" required />
-          <Input type="text" value={season} onChange={(e) => setSeason(e.target.value)} placeholder="Temporada" required />
+          <Input type="text" value={season} onChange={(e) => setSeason(e.target.value)} placeholder="Temporada" requerido />
           <Input type="text" value={image_url} onChange={(e) => setImageUrl(e.target.value)} placeholder="URL de la Imagen" />
           <Button type="submit">{editId ? 'Actualizar Publicación' : 'Agregar Publicación'}</Button>
         </Form>

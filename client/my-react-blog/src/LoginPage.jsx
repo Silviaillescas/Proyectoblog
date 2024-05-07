@@ -68,7 +68,7 @@ const LoginPage = ({ setToken }) => {
       }
     };
     try {
-      const response = await fetch('http://localhost:3000/auth/login', fetchOptions);
+      const response = await fetch('https://api.tiburoncin.lat/22376/auth/login', fetchOptions);
       if (response.ok) {
         const data = await response.json(); // Asegúrate de que sea JSON válido
         const token = data.token || '';

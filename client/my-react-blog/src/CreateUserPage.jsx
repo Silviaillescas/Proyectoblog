@@ -42,7 +42,7 @@ const CreateUserPage = ({ onUserCreated }) => {
       headers: { 'Content-Type': 'application/json' }
     };
     try {
-      const response = await fetch('http://localhost:3000/users', fetchOptions);
+      const response = await fetch('https://api.tiburoncin.lat/22376/users', fetchOptions);
       if (response.ok) {
         onUserCreated(); // Puedes redirigir o mostrar un mensaje de éxito
       } else {
